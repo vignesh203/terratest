@@ -1,12 +1,19 @@
-name: terraform
-on: [push]
+name: provision the eks resources
+on:
+  workflow_dispatch:
+    inputs:
+      name:
+        description: "target environment name"
+        required: true
 jobs:
-  init:
-    name: init
+  deploy_source:
+    name: terraform deployment
     runs-on: ubuntu-latest
+    env:
+      bucket: terraform-backend-buckets-tfd
     steps:
       - name: checkout
-        uses: actions/checkout@v1      
+        uses: actions/checkout@v1
       - name: setup terraform
         uses: hashicorp/setup-terraform@v1
         with:
@@ -16,27 +23,17 @@ jobs:
         with:
           aws-access-key-id: ${{ secrets.ACCESS_KEY }}
           aws-secret-access-key: ${{ secrets.SECRET_KEY }}
-          aws-region: us-east-1
-      - name: terraform initiation
-        run: terraform init
-      - uses: actions/upload-artifact@v2
-        with:
-          name: terraform-artifact
-          path: .
-  validation:
-    name: validate
-    needs:
-    - init
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/download-artifact@v2
-        with:
-          name: terraform-artifact
-      - name: upload-artifact-verify
-        run: ls -la
-      - name: terraform
-        run: terraform --version
-      - name: terraform 
-        run: terraform plan -var-file=config-prod.tfvars
-      - name: terraform 
-        run: terraform init -var-file=config-prod.tfvars
+          aws-region: eu-central-1
+      - name: terraform initial
+        run: |
+          terraform init \
+            -backend-config="bucket=${{ env.bucket }}" \
+            -backend-config="key=${{ github.event.inputs.name }}/tfstate.tfstate" \
+            -backend-config="region=eu-central-1" \
+            -backend=true
+      - name: terraform plan
+        run: terraform  plan -var-file=config.tfvars
+      - name: terraform apply
+        run: terraform  apply -var-file=config.tfvars -auto-approve
+        
+   
