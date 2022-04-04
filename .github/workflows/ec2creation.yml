@@ -21,8 +21,7 @@ jobs:
           aws-region: eu-central-1
       - name: terraform initial
         run: |
-          terraform init \ 
-               
+          terraform init           
       - name: terraform plan
         run: terraform  plan 
       - name: terraform apply
