@@ -1,10 +1,5 @@
 name: provision the eks resources
-on:
-  workflow_dispatch:
-    inputs:
-      name:
-        description: "target environment name"
-        required: true
+on: [push]
 jobs:
   deploy_source:
     name: terraform deployment
