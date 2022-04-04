@@ -26,14 +26,8 @@ jobs:
           aws-region: eu-central-1
       - name: terraform initial
         run: |
-          terraform init \
-            -backend-config="bucket=${{ env.bucket }}" \
-            -backend-config="key=${{ github.event.inputs.name }}/tfstate.tfstate" \
-            -backend-config="region=eu-central-1" \
-            -backend=true
+          terraform init \      
       - name: terraform plan
-        run: terraform  plan -var-file=config.tfvars
+        run: terraform  plan 
       - name: terraform apply
-        run: terraform  apply -var-file=config.tfvars -auto-approve
-        
-   
+        run: terraform  apply  -auto-approve
